@@ -4,12 +4,19 @@ const score_info = document.getElementById("score-info");
 
 const box = 20; // Size of each snake segment and food
 const gap = 2; // Gap between cells
-const rows = Math.floor((canvas.height - gap) / (box + gap)); // Number of rows in the grid
-const cols = Math.floor((canvas.width - gap) / (box + gap)); // Number of columns in the grid
+const rows = Math.floor((560 - gap) / (box + gap)); // Number of rows in the grid
+const cols = Math.floor((340 - gap) / (box + gap)); // Number of columns in the grid
 
 let snake = [{ x: 9 * (box + gap), y: 9 * (box + gap) }]; // Starting position of the snake
 
+// score by +1
 let food = {
+  x: Math.floor(Math.random() * cols) * (box + gap),
+  y: Math.floor(Math.random() * rows) * (box + gap),
+};
+
+// boost the score for 5
+let foodBoost = {
   x: Math.floor(Math.random() * cols) * (box + gap),
   y: Math.floor(Math.random() * rows) * (box + gap),
 };
@@ -19,18 +26,27 @@ let d; // Direction
 let getHighScore = localStorage.getItem("highScore") || 0;
 
 document.addEventListener("keydown", direction);
-document
-  .getElementById("up")
-  .addEventListener("click", () => setDirection("UP"));
-document
-  .getElementById("down")
-  .addEventListener("click", () => setDirection("DOWN"));
-document
-  .getElementById("left")
-  .addEventListener("click", () => setDirection("LEFT"));
-document
-  .getElementById("right")
-  .addEventListener("click", () => setDirection("RIGHT"));
+const upElement = document.getElementById("up");
+const downElement = document.getElementById("down");
+const leftElement = document.getElementById("left");
+const rightElement = document.getElementById("right");
+
+function setDirection(newDirection) {
+  // Logic to change the direction of the snake
+  console.log("Direction set to:", newDirection);
+}
+
+// Add touchstart and click events for touch and mouse devices
+function addTouchAndClickEvents(element, direction) {
+  element.addEventListener("touchstart", () => setDirection(direction));
+  element.addEventListener("click", () => setDirection(direction)); // for desktop mouse click
+}
+
+// Adding event listeners for all control elements
+addTouchAndClickEvents(upElement, "UP");
+addTouchAndClickEvents(downElement, "DOWN");
+addTouchAndClickEvents(leftElement, "LEFT");
+addTouchAndClickEvents(rightElement, "RIGHT");
 
 function direction(event) {
   if (event.keyCode == 37 && d != "RIGHT") {
@@ -78,7 +94,7 @@ function getCellCoordinates(x, y) {
 
 function drawGrid() {
   // Clear the canvas
-  ctx.clearRect(220, 0, canvas.width, canvas.height);
+  ctx.clearRect(200, 200, 350, 500);
 
   // Draw the grid
   for (let row = 0; row < rows; row++) {
@@ -92,13 +108,17 @@ function drawGrid() {
 
       // Draw the cell
       ctx.fillRect(x, y, box, box);
+      ctx.beginPath();
+      ctx.moveTo(0, 550);
+      ctx.lineTo(320, 550);
+      ctx.stroke();
     }
   }
 }
 
 function draw() {
-  canvas.width = window.innerWidth - 100;
-  canvas.height = window.innerHeight - 350;
+  canvas.width = 320;
+  canvas.height = 600;
 
   // Clear the canvas
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -143,7 +163,7 @@ function draw() {
     snakeX < 0 ||
     snakeY < 0 ||
     snakeX >= canvas.width ||
-    snakeY >= canvas.height ||
+    snakeY >= 550 ||
     collision(newHead, snake)
   ) {
     score_info.innerText = `Game Over\nYour Score is ${score}`;
@@ -166,10 +186,10 @@ function draw() {
   snake.unshift(newHead);
 
   let highScore = localStorage.getItem("highScore") || 0;
-  ctx.fillStyle = "black";
+  ctx.fillStyle = "green";
   ctx.font = "20px Arial";
-  ctx.fillText("Score: " + score, 5, canvas.height - 25);
+  ctx.fillText("Score: " + score, 5, canvas.height - 30);
   ctx.fillText("High Score: " + highScore, 5, canvas.height - 5);
 }
 
-let game = setInterval(draw, 120);
+let game = setInterval(draw, 300);
