@@ -22,18 +22,27 @@ let d; // Direction
 let getHighScore = localStorage.getItem("highScore") || 0;
 
 document.addEventListener("keydown", direction);
+const upElement = document.getElementById("up");
+const downElement = document.getElementById("down");
+const leftElement = document.getElementById("left");
+const rightElement = document.getElementById("right");
 
 function setDirection(newDirection) {
-  if (newDirection === "LEFT" && d !== "RIGHT") {
-    d = "LEFT";
-  } else if (newDirection === "UP" && d !== "DOWN") {
-    d = "UP";
-  } else if (newDirection === "RIGHT" && d !== "LEFT") {
-    d = "RIGHT";
-  } else if (newDirection === "DOWN" && d !== "UP") {
-    d = "DOWN";
-  }
+  // Logic to change the direction of the snake
+  console.log("Direction set to:", newDirection);
 }
+
+// Add touchstart and click events for touch and mouse devices
+function addTouchAndClickEvents(element, direction) {
+  element.addEventListener("touchstart", () => setDirection(direction));
+  element.addEventListener("click", () => setDirection(direction)); // for desktop mouse click
+}
+
+// Adding event listeners for all control elements
+addTouchAndClickEvents(upElement, "UP");
+addTouchAndClickEvents(downElement, "DOWN");
+addTouchAndClickEvents(leftElement, "LEFT");
+addTouchAndClickEvents(rightElement, "RIGHT");
 
 function direction(event) {
   if (event.keyCode == 37 && d != "RIGHT") {
@@ -47,6 +56,18 @@ function direction(event) {
   }
 }
 
+function setDirection(dir) {
+  if (dir == "LEFT" && d != "RIGHT") {
+    d = "LEFT";
+  } else if (dir == "UP" && d != "DOWN") {
+    d = "UP";
+  } else if (dir == "RIGHT" && d != "LEFT") {
+    d = "RIGHT";
+  } else if (dir == "DOWN" && d != "UP") {
+    d = "DOWN";
+  }
+}
+
 function collision(newHead, snake) {
   for (let i = 0; i < snake.length; i++) {
     if (newHead.x == snake[i].x && newHead.y == snake[i].y) {
@@ -54,6 +75,17 @@ function collision(newHead, snake) {
     }
   }
   return false;
+}
+
+let cellStates = Array(rows)
+  .fill()
+  .map(() => Array(cols).fill("lightgreen"));
+let highlightedCell = { row: -1, col: -1 }; // Initially, no cell is highlighted
+
+function getCellCoordinates(x, y) {
+  const col = Math.floor(x / (box + gap));
+  const row = Math.floor(y / (box + gap));
+  return { row, col };
 }
 
 function drawGrid() {
@@ -67,12 +99,16 @@ function drawGrid() {
       const y = row * (box + gap);
 
       ctx.fillRect(x, y, box, box);
+      ctx.beginPath();
+      ctx.moveTo(0, 550);
+      ctx.lineTo(330, 550);
+      ctx.stroke();
     }
   }
 }
 
 function draw() {
-  canvas.width = 327;
+  canvas.width = 330;
   canvas.height = 600;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -146,11 +182,11 @@ function draw() {
     snakeX < 0 ||
     snakeY < 0 ||
     snakeX >= canvas.width ||
-    snakeY >= 600 ||
+    snakeY >= 550 ||
     collision(newHead, snake)
   ) {
-    score_info.innerText = `Game Over\nYour Score is ${score}`;
-    alert(`Game Over\nYour Score is ${score}`);
+    score_info.innerText = `Game Over\nYour Score is ${score}\nHigh Score is ${getHighScore}`;
+    alert(`Game Over\nYour Score is ${score}\nHigh Score is ${getHighScore}`);
     clearInterval(game);
   }
 
